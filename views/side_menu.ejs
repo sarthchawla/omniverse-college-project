@@ -1,0 +1,16 @@
+<div class="sidebar">
+    <a href="/home">Home</a>
+    <a href="/add_user">add user</a>
+    <a href="#contact">Contact</a>
+    <a href="#about">About</a>
+</div>
+<script>
+    $(document).ready(function () {
+        $(".sidebar a").each(function () {
+            console.log($(this).attr('href'));
+            if ((window.location.pathname.indexOf($(this).attr('href'))) > -1) {
+                $(this).addClass('active');
+            }
+        });
+    });
+</script>

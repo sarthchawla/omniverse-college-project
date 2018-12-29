@@ -1,7 +1,11 @@
 <body class="text-center" bgcolor="gray">
-    <form class="form-signin" action="/submit" method="POST">
-        <img class="mb-4" src="login_files/bootstrap-solid.html" alt="" width="72" height="72">
+    <form class="form-signin" action="/login_info" method="POST">
         <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+        <% if(msg !== "none"){ %>
+        <h4 style="color:red">
+            <%= msg %>
+        </h4>
+        <% } %>
         <label for="inputEmail" class="sr-only">Email address</label>
         <input name="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus=""
             type="email">

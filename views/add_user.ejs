@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <% include head %>
+    </head>
+
+    <body>
+        <% include navbar %>
+        <% include side_menu %>
+        <div class="container" class="content">
+            <div class="col-sm-3">
+            </div>
+            <div class="col-sm-6" style="margin-top:40px">
+                <br>
+                <h1 align="center">Add User</h1>
+                <form action="/user_data" method="post" class="form-horizontal">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <input type="email" required="" name="username" class="form-control" id="username"
+                                placeholder="Email"><br>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" required="" name="phone" class="form-control" maxlength="10" id="phone"
+                                placeholder="Phone"><br>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" required="" name="city" class="form-control" placeholder="City"><br>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" required="" name="password" class="form-control" placeholder="Password"><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Role:</label><br>
+                            <select data-style="btn-info" name="roleoptions" class="form-control">
+                                <optgroup label="Select User Role">
+                                    <option value="user" selected="selected">User</option>
+                                    <option value="commuity manager">Commuity Manager</option>
+                                    <option value="admin">Admin</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group" align="center">
+                            <input type="submit" value="Add User" class="btn btn-success">
+                            <a value="Add User" class="btn btn-danger" href="#">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </body>
+
+</html>
