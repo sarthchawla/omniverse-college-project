@@ -6,15 +6,34 @@ var session = require('express-session');
 var bodyparser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/omniverse";
-app.set('view engine', 'ejs');//set view engine to ejs
+//set view engine to ejs
+app.set('view engine', 'ejs');
+//prevent back button to accesss previous page
+app.use(function (req, res, next) {
+    //res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    next();
+});
+//session middleware ,configuring session settings 
 app.use(session({
+    saveUninitialized: false,
+    resave: true,
+    rolling: true,//to keep track of idle time only 
     secret: "for session use only", cookie: {
         path: "/",
-        maxAge: 1000 * 60 * 5  //30 mins
+        maxAge: 1000 * 60 * 5  //5 mins...milisec to sec to minutes
     }
-}));//seession middleware
-app.use(express.static('static_files'));//providing static files via middleware
-app.use(bodyparser.urlencoded({ extended: true }));//using bodyparser middleware for getting form data
+}));
+//providing static files via middleware
+app.use(express.static('static_files'));
+//using bodyparser middleware for getting form data
+app.use(bodyparser.urlencoded({ extended: true }));
+//fucntion to be used with every get request to check weather logged in or not
+function isAuthenticated(req, res, next) {
+    if (req.session.type) {
+        return next();
+    }
+    res.redirect('/');
+}
 //first page of website is login
 var current_session;
 app.get('/', function (req, res) {
@@ -23,17 +42,20 @@ app.get('/', function (req, res) {
         res.redirect(current_session.type);
     }
     else
-        res.render('index', { msg: "none" });//routing to login page
+        res.render('index', { msg: "none" });//sending login page..index page is actually login page
     console.log(req.session);
 });
-app.get('/admin', function (req, res) {
-    res.send('admin');
+//to get admin's homepage
+app.get('/admin', isAuthenticated, function (req, res) {
+    res.render('admin_home');
 });
-app.get('/user', function (req, res) {
-    res.send('user');
+//to get admin's homepage
+app.get('/user', isAuthenticated, function (req, res) {
+    res.render('user_home');
 });
-app.get('/community_builder', function (req, res) {
-    res.send('community builder');
+//to get admin's homepage
+app.get('/community_builder', isAuthenticated, function (req, res) {
+    res.render('community_builder_home');
 });
 app.post('/login_info', function (req, res) {//getting data from the login page
     console.log('login credentials are = ' + req.body.email + ' ' + req.body.password);//checking whats send
@@ -68,7 +90,7 @@ app.post('/login_info', function (req, res) {//getting data from the login page
         });
     });
 });
-app.get('/add_user', function (req, res) {
+app.get('/add_user', isAuthenticated, function (req, res) {
     res.render('add_user');
 });
 app.post('/user_data', function (req, res) {
