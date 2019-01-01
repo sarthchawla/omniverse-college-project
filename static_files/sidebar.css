@@ -1,14 +1,20 @@
+
+.navbar {
+  margin-bottom: 0;
+  border-radius: 0;
+}
 .sidebar {
-  margin: 0;
-  margin-top: 100px;
-  padding: 0;
-  width: 200px;
   background-color: #91999d;
-  position: fixed;
+  position: relative;
   height: 100%;
   overflow: auto;
 }
-
+.row
+{
+  /* jugad */
+  height: 100vh;
+  padding-top: 50px;
+}
 .sidebar a {
   display: block;
   color: black;
@@ -26,25 +32,10 @@
   color: white;
 }
 
-div.content {
-  margin-left: 200px;
-  padding: 1px 16px;
-  height: 1000px;
+@media screen and (max-width: 767px) {
+.sidebar {
+  height: auto;
+  padding: 15px;
 }
-
-@media screen and (max-width: 700px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-  }
-  .sidebar a {float: left;}
-  div.content {margin-left: 0;}
-}
-
-@media screen and (max-width: 400px) {
-  .sidebar a {
-    text-align: center;
-    float: none;
-  }
+.row.content {height:auto;} 
 }

@@ -6,11 +6,12 @@ var session = require('express-session');
 var bodyparser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/omniverse";
+var myvar;
 //set view engine to ejs
 app.set('view engine', 'ejs');
 //prevent back button to accesss previous page
 app.use(function (req, res, next) {
-    //res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     next();
 });
 //session middleware ,configuring session settings 
@@ -34,29 +35,41 @@ function isAuthenticated(req, res, next) {
     }
     res.redirect('/');
 }
+//all get requests
 //first page of website is login
 var current_session;
 app.get('/', function (req, res) {
     current_session = req.session;
     if (current_session.type) {
-        res.redirect(current_session.type);
+        res.redirect('/home');//to get homepage
     }
     else
         res.render('index', { msg: "none" });//sending login page..index page is actually login page
     console.log(req.session);
 });
-//to get admin's homepage
-app.get('/admin', isAuthenticated, function (req, res) {
-    res.render('admin_home');
+//homepage for all types get handled here
+app.get('/home', isAuthenticated, function (req, res) {
+    console.log(myvar);
+    res.render('home', { type: req.session.type });
 });
-//to get admin's homepage
-app.get('/user', isAuthenticated, function (req, res) {
-    res.render('user_home');
+//add user page
+app.get('/add_user', isAuthenticated, function (req, res) {
+    res.render('add_user');
 });
-//to get admin's homepage
-app.get('/community_builder', isAuthenticated, function (req, res) {
-    res.render('community_builder_home');
+//logout page
+app.get('/logout', isAuthenticated, function (req, res) {
+    req.session.destroy(function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.redirect('/');
+        }
+    });
 });
+app.get('/changep', isAuthenticated, function (req, res) {
+
+});
+//for all post requests
 app.post('/login_info', function (req, res) {//getting data from the login page
     console.log('login credentials are = ' + req.body.email + ' ' + req.body.password);//checking whats send
     MongoClient.connect(url, function (err, db) {
@@ -67,12 +80,8 @@ app.post('/login_info', function (req, res) {//getting data from the login page
             else if (result.length > 0) {
                 if (result[0].password == req.body.password) {
                     current_session = req.session;
-                    if (result[0].roleoptions == "admin")
-                        current_session.type = "/admin";
-                    else if (result[0].roleoptions == "user")
-                        current_session.type = "/user";
-                    else
-                        current_session.type = "/community_builder";
+                    current_session.type = result[0].roleoptions;
+                    myvar = result[0];
                     res.redirect('/');
                 }
                 else {
@@ -90,10 +99,7 @@ app.post('/login_info', function (req, res) {//getting data from the login page
         });
     });
 });
-app.get('/add_user', isAuthenticated, function (req, res) {
-    res.render('add_user');
-});
-app.post('/user_data', function (req, res) {
+app.post('/user_data', isAuthenticated, function (req, res) {
     MongoClient.connect(url, function (err, db) {
         if (err) throw err;
         var dbo = db.db("omniverse");

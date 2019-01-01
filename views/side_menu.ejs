@@ -1,8 +1,17 @@
-<div class="sidebar">
+<div class="col-sm-2 sidebar" style="padding-right: 0px;padding-left: 0px;">
+    <!-- for users and cb home is my communities page -->
     <a href="/home">Home</a>
-    <a href="/add_user">add user</a>
-    <a href="#contact">Contact</a>
-    <a href="#about">About</a>
+    <% if(type=="admin"){ %>
+    <a href="/add_user">Add User</a>
+    <a href="/ulist">User List</a>
+    <a href="/clist">Community List</a>
+    <a href="/suser">Switch as user</a>
+    <a href="/tpannel">Tag pannel</a>
+    <% }else{ %>
+    <a href="/uprofile">My Profile</a>
+    <% } %>
+    <a href="/changep">Change Password</a>
+    <a href="/logout">Logout</a>
 </div>
 <script>
     $(document).ready(function () {
