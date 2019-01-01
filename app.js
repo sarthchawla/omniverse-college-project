@@ -19,9 +19,9 @@ app.use(session({
     saveUninitialized: false,
     resave: true,
     rolling: true,//to keep track of idle time only 
-    secret: "for session use only", cookie: {
+    secret: "for session use only",
+    cookie: {
         path: "/",
-        maxAge: 1000 * 60 * 5  //5 mins...milisec to sec to minutes
     }
 }));
 //providing static files via middleware
@@ -88,7 +88,8 @@ app.post('/change_password', isAuthenticated, function (req, res) {
     }
 })
 app.post('/login_info', function (req, res) {//getting data from the login page
-    console.log('login credentials are = ' + req.body.email + ' ' + req.body.password);//checking whats send
+    console.log('login credentials are = ');//checking whats send
+    console.log(req.body);
     MongoClient.connect(url, function (err, db) {
         if (err) throw err;
         var dbo = db.db("omniverse");
@@ -99,6 +100,9 @@ app.post('/login_info', function (req, res) {//getting data from the login page
                     current_session = req.session;
                     current_session.type = result[0].roleoptions;
                     myvar = result[0];
+                    if (req.body.remember) { } else {
+                        req.session.cookie.maxAge = 1000 * 60 * 5; //5 mins...milisec to sec to minutes
+                    }
                     res.redirect('/');
                 }
                 else {
