@@ -54,7 +54,7 @@ app.get('/home', isAuthenticated, function (req, res) {
 });
 //add user page
 app.get('/add_user', isAuthenticated, function (req, res) {
-    res.render('add_user');
+    res.render('add_user', { msg: "none" });
 });
 //logout page
 app.get('/logout', isAuthenticated, function (req, res) {
@@ -67,9 +67,26 @@ app.get('/logout', isAuthenticated, function (req, res) {
     });
 });
 app.get('/changep', isAuthenticated, function (req, res) {
-
+    res.render('change_password', { msg: "none" });
 });
 //for all post requests
+app.post('/change_password', isAuthenticated, function (req, res) {
+    if (myvar.password === req.body.old_password) {
+        MongoClient.connect(url, function (err, db) {
+            if (err) throw err;
+            var dbo = db.db("omniverse");
+            var newvalues = { $set: { password: req.body.new_password } };
+            dbo.collection("users").updateOne(myvar, newvalues, function (err, res) {
+                if (err) throw err;
+                db.close();
+            });
+        });
+        res.render('change_password', { msg: "Password has been successfully changed" })
+    }
+    else {
+        res.render('change_password', { msg: "Old password doesn't match with account password" });
+    }
+})
 app.post('/login_info', function (req, res) {//getting data from the login page
     console.log('login credentials are = ' + req.body.email + ' ' + req.body.password);//checking whats send
     MongoClient.connect(url, function (err, db) {
@@ -99,16 +116,28 @@ app.post('/login_info', function (req, res) {//getting data from the login page
         });
     });
 });
-app.post('/user_data', isAuthenticated, function (req, res) {
-    MongoClient.connect(url, function (err, db) {
-        if (err) throw err;
-        var dbo = db.db("omniverse");
-        var myobj = req.body;
-        dbo.collection("users").insertOne(myobj, function (err, res) {
+function check(obj) {
+    if (obj.username.length > 0 && obj.phone.length > 0 && obj.city.length > 0 && obj.password.length > 0)
+        return true;
+    return false;
+}
+app.post('/add_user', isAuthenticated, function (req, res) {
+    var myobj = req.body;
+    console.log(myobj);
+    if (check(myobj)) {
+        MongoClient.connect(url, function (err, db) {
             if (err) throw err;
-            console.log("1 document inserted" + 'myobj');
-            db.close();
+            var dbo = db.db("omniverse");
+            dbo.collection("users").insertOne(myobj, function (err, res) {
+                if (err) throw err;
+                console.log("1 document inserted");
+                db.close();
+            });
         });
-    });
+        res.render('add_user', { msg: "User added" });
+    }
+    else {
+        res.render('add_user', { msg: "Please fill all the fields" });
+    }
 });
 app.listen(8000);
