@@ -49,8 +49,13 @@ app.get('/', function (req, res) {
 });
 //homepage for all types get handled here
 app.get('/home', isAuthenticated, function (req, res) {
-    console.log(myvar);
-    res.render('home', { type: req.session.type });
+    console.log(myvar.status);
+    if (myvar.status == false) {
+        res.render('cform', { msg: "none", myvar: myvar });
+    }
+    else {
+        res.render('home', { type: req.session.type });
+    }
 });
 //add user page
 app.get('/add_user', isAuthenticated, function (req, res) {
@@ -67,9 +72,38 @@ app.get('/logout', isAuthenticated, function (req, res) {
     });
 });
 app.get('/changep', isAuthenticated, function (req, res) {
-    res.render('change_password', { msg: "none" });
+    res.render('change_password', { msg: "none", type: myvar.roleoptions });
 });
 //for all post requests
+function check1(obj) {
+    if (obj.name.length > 0 && obj.dob.length > 0 && obj.gender.length > 0 && obj.phone.length > 0 && obj.city.length > 0 && obj.interests.length > 0 && obj.journey.length > 0 && obj.expectations.length > 0)
+        return true;
+    return false;
+}
+app.post('/cform', isAuthenticated, function (req, res) {
+    if (check1(req.body)) {
+        MongoClient.connect(url, function (err, db) {
+            if (err) throw err;
+            var dbo = db.db("omniverse");
+            var newvalues = { $set: req.body };
+            dbo.collection("users").updateOne(myvar, newvalues, function (err, res) {
+                if (err) throw err;
+                db.close();
+            });
+            newvalues = { $set: { status: true } };
+            dbo.collection("users").updateOne(myvar, newvalues, function (err, res) {
+                if (err) throw err;
+                db.close();
+            });
+            myvar.status = true;
+        });
+        res.redirect('/home');
+    }
+    else {
+        res.render('cform', { msg: "Please fill all the fields", myvar: myvar });
+    }
+
+});
 app.post('/change_password', isAuthenticated, function (req, res) {
     if (myvar.password === req.body.old_password) {
         MongoClient.connect(url, function (err, db) {
@@ -81,13 +115,14 @@ app.post('/change_password', isAuthenticated, function (req, res) {
                 db.close();
             });
         });
-        res.render('change_password', { msg: "Password has been successfully changed" })
+        res.render('change_password', { msg: "Password has been successfully changed", type: myvar.roleoptions })
     }
     else {
-        res.render('change_password', { msg: "Old password doesn't match with account password" });
+        res.render('change_password', { msg: "Old password doesn't match with account password", type: myvar.roleoptions });
     }
 })
-app.post('/login_info', function (req, res) {//getting data from the login page
+//getting data from the login page
+app.post('/login_info', function (req, res) {
     console.log('login credentials are = ');//checking whats send
     console.log(req.body);
     MongoClient.connect(url, function (err, db) {
@@ -129,6 +164,8 @@ app.post('/add_user', isAuthenticated, function (req, res) {
     var myobj = req.body;
     console.log(myobj);
     if (check(myobj)) {
+        myobj.status = false;//fill form to confirm the status or admin can edit it too
+        myobj.active = true;//all records will be kept even after deactivation can be done by admin too
         MongoClient.connect(url, function (err, db) {
             if (err) throw err;
             var dbo = db.db("omniverse");

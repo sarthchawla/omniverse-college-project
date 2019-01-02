@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <% include head %>
+    </head>
+
+    <body>
+        <% include topbar %>
+        <div class="container" class="content">
+            <div class="col-sm-2">
+            </div>
+            <div class="col-sm-8" style="margin-top:40px">
+                <br>
+                <center>
+                    <h1>Update Details</h1>
+                    <h4>All fields are compulsary </h4>
+                </center>
+                <br>
+                <% if(msg !== "none"){ %>
+                <h4 style="color:mediumslateblue">
+                    <%= msg %>
+                </h4>
+                <% } %>
+                <form action="/cform" method="post">
+                    <fieldset>
+                        <legend>Basic Info:</legend>
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" required="" name="name" class="form-control" placeholder="Enter name"><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Date of Birth:</label>
+                            <input type="date" required="" name="dob" class="form-control" placeholder="Enter DOB"><br>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender:</label>
+                            <select data-style="btn-info" name="gender" class="form-control">
+                                <optgroup label="Select gender">
+                                    <option value="Male" selected="selected">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Transgender">Transgender</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Contact Info:</legend>
+                        <div class="form-group">
+                            <label>Phone Number:</label>
+                            <input type="text" required="" name="phone" pattern="[0-9]{}" class="form-control"
+                                maxlength="10" id="phone" value=<%=myvar.phone %> ><br>
+                        </div>
+                        <div class="form-group">
+                            <label>City:</label>
+                            <input type="text" required="" name="city" class="form-control" value=<%=myvar.city %>><br>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Personal Info:</legend>
+                        <div class="form-group">
+                            <label>Interests :</label>
+                            <textarea type="text" class="form-control" name="interests"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tell us a bit more about your journey:</label>
+                            <textarea type="text" class="form-control" name="journey"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>What are your expectations from the communities?</label>
+                            <textarea type="text" class="form-control" name="expectations"></textarea>
+                        </div>
+
+                    </fieldset>
+                    <div class="form-group" align="center">
+                        <input type="submit" value="Update" class="btn btn-success">
+                        <a value="Logout" class="btn btn-danger" href="/logout">Logout</a>
+                    </div>
+                </form>
+            </div>
+            <div class="col-sm-2">
+            </div>
+        </div>
+    </body>
+
+</html>
