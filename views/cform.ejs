@@ -6,7 +6,7 @@
     </head>
 
     <body>
-        <% include topbar %>
+        <%- include('topbar', {dp: dp}) %>
         <div class="container" class="content">
             <div class="col-sm-2">
             </div>
@@ -15,13 +15,25 @@
                 <center>
                     <h1>Update Details</h1>
                     <h4>All fields are compulsary </h4>
+                    <% if(msg!=="none"){ %>
+                    <h4 style="color:mediumslateblue">
+                        <%= msg %>
+                    </h4>
+                    <% } %>
+                    <br>
+                    <% if(img!=="none"){ %>
+                    <img class="img-responsive" style="height: 150px;width: 150px;" src=<%=img %> >
+                    <% } %>
+                    <form id="myform" method="post" enctype="multipart/form-data" action="/upload" class="form-inline">
+                        <label>Upload profile pic:</label>
+                        <div class="form-group">
+                            <input type="file" name="file">
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" value="Upload" class="btn btn-success">
+                        </div>
+                    </form>
                 </center>
-                <br>
-                <% if(msg !== "none"){ %>
-                <h4 style="color:mediumslateblue">
-                    <%= msg %>
-                </h4>
-                <% } %>
                 <form action="/cform" method="post">
                     <fieldset>
                         <legend>Basic Info:</legend>
@@ -48,7 +60,7 @@
                         <legend>Contact Info:</legend>
                         <div class="form-group">
                             <label>Phone Number:</label>
-                            <input type="text" required="" name="phone" pattern="[0-9]{}" class="form-control"
+                            <input type="text" required="" name="phone" pattern="[0-9]{10}" class="form-control"
                                 maxlength="10" id="phone" value=<%=myvar.phone %> ><br>
                         </div>
                         <div class="form-group">
@@ -60,17 +72,17 @@
                         <legend>Personal Info:</legend>
                         <div class="form-group">
                             <label>Interests :</label>
-                            <textarea type="text" class="form-control" name="interests"></textarea>
+                            <textarea type="text" class="form-control" name="interests" required=""></textarea>
                         </div>
 
                         <div class="form-group">
                             <label>Tell us a bit more about your journey:</label>
-                            <textarea type="text" class="form-control" name="journey"></textarea>
+                            <textarea type="text" class="form-control" name="journey" required=""></textarea>
                         </div>
 
                         <div class="form-group">
                             <label>What are your expectations from the communities?</label>
-                            <textarea type="text" class="form-control" name="expectations"></textarea>
+                            <textarea type="text" class="form-control" name="expectations" required=""></textarea>
                         </div>
 
                     </fieldset>
