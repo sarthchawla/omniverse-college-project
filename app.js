@@ -73,8 +73,11 @@ app.get('/home', function (req, res) {
             img = "none"
             res.render('cform', { msg: "none", myvar: myvar, img: img, dp: "none" });//first page is reg. form if status is false(pending)
         }
+        else if (req.session.type == "admin") {
+            res.render('uprofile', { myvar: myvar, dp: req.session.dp });
+        }
         else {
-            res.render('home', { type: req.session.type, dp: req.session.dp });
+            res.render('user_home', { myvar: myvar })
         }
     }
     else {

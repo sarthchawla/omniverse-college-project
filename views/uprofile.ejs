@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <% include head %>
+    </head>
+
+    <body>
+        <%- include('topbar', {dp: dp}) %>
+        <div class="container-fluid text-center">
+            <div class="row content">
+                <%- include('side_menu', {type: 'admin'}) %>
+                <div class="col-sm-10 container content" style="margin-top:40px;">
+
+                    <div class="form-group">
+                        <a href="/editProfile" class="btn btn-primary pull-right" style="margin-right:15px">Edit</a>
+                    </div>
+                    <center><img class="img-responsive" style="height: 150px;width: 150px;" src=<%=dp %> ></center>
+
+
+                    <br />
+                    <br />
+
+                    <div class="col-sm-6">
+                        <div class="panel panel-info">
+                            <div class="panel-heading">Email</div>
+                            <div class="panel-body">
+                                <%=myvar.username %>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-sm-6">
+                        <div class="panel panel-info ">
+                            <div class="panel-heading">Gender</div>
+                            <div class="panel-body" style="text-transform: capitalize;">
+                                <%=myvar.gender %>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-sm-6">
+                        <div class="panel panel-info ">
+                            <div class="panel-heading">Name</div>
+                            <div class="panel-body">
+                                <%=myvar.name %>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-sm-6">
+                        <div class="panel panel-info ">
+                            <div class="panel-heading">City</div>
+                            <div class="panel-body">
+                                <%=myvar.city %>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-sm-6">
+                        <div class="panel panel-info ">
+                            <div class="panel-heading">D.O.B</div>
+                            <div class="panel-body null-link" id="dobtext">
+                                <%=myvar.dob %>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="col-sm-6">
+                        <div class="panel panel-info ">
+                            <div class="panel-heading">Phone</div>
+                            <div class="panel-body">
+                                <%=myvar.phone %>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="col-sm-12">
+                        <div class="panel panel-info ">
+                            <div class="panel-heading">Interests</div>
+                            <div class="panel-body">
+                                <%=myvar.interests %>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="col-sm-12">
+                        <div class="panel panel-info ">
+                            <div class="panel-heading">About journey</div>
+                            <div class="panel-body">
+                                <%=myvar.journey %>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <div class="col-sm-12">
+                        <div class="panel panel-info ">
+                            <div class="panel-heading">Expectations from communities</div>
+                            <div class="panel-body">
+                                <%=myvar.expectations %>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+
+    </body>
+
+</html>
