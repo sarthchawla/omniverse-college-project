@@ -8,14 +8,15 @@ var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/omniverse";
 var multer = require('multer');
 var sharp = require('sharp');//for resizeing pic
-var img;//set it as per required for profile pic
+var img, ext;//set it as per required for profile pic
 //multer settings
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'static_files/images/')//custom location
     },
     filename: (req, file, cb) => {
-        img = JSON.stringify(myvar._id) + "." + file.mimetype.split('/').pop();
+        ext = file.mimetype.split('/').pop();
+        img = JSON.stringify(myvar._id) + "." + ext;
         cb(null, img)
     }
 });
@@ -43,6 +44,7 @@ app.use(session({
 app.use(express.static('static_files'));
 //using bodyparser middleware for getting form data
 app.use(bodyparser.urlencoded({ extended: true }));
+//helper functions
 //fucntion to be used with every request (expect for login) to check weather logged in or not
 function isAuthenticated(req, res, next) {
     if (req.session.type && myvar.status == true) {
@@ -56,7 +58,7 @@ var current_session;
 app.get('/', function (req, res) {
     current_session = req.session;
     if (current_session.type) {
-        req.session.dp = "/images/" + JSON.stringify(myvar._id) + ".png";
+        req.session.dp = "/images/new-" + JSON.stringify(myvar._id) + ".png";
         res.redirect('/home');//to get homepage
     }
     else
@@ -68,6 +70,7 @@ app.get('/home', function (req, res) {
     //so that user cant directly go to home from login
     if (req.session.type) {//checking for correct password seperatly as isAuthenticated checks for status too
         console.log(myvar.status);
+
         if (myvar.status == false) {
             //this form is needed to be filled to go forward
             img = "none"
@@ -77,12 +80,16 @@ app.get('/home', function (req, res) {
             res.render('uprofile', { myvar: myvar, dp: req.session.dp });
         }
         else {
-            res.render('user_home', { myvar: myvar })
+            res.render('user_home', { myvar: myvar, dp: req.session.dp })
         }
     }
     else {
         res.redirect('/');
     }
+});
+//user profile page
+app.get('/uprofile', isAuthenticated, function (req, res) {
+    res.render('uprofile', { myvar: myvar, dp: req.session.dp });
 });
 //add user page
 app.get('/add_user', isAuthenticated, function (req, res) {
@@ -114,11 +121,12 @@ app.post('/upload', function (req, res) {
         if (err) {
             throw err;
         }
-        img = "/images/" + img;
-        var path = "./static_files" + img;//for resizeing source file
+        var temp = img;
+        img = "images/new-" + img;
+        var path = "./static_files/images/" + temp;//for resizeing source file
         //for ejs img tag evaluation
         img = img.split('.').slice(0, -1).join('.') + ".png";//for after resize
-        var p2 = "./static_files" + img;//after resize path with .png format
+        var p2 = "./static_files/" + img;//after resize path with .png format
         //check and delete previos profile pic synchronously 
         if (fs.existsSync(p2)) {
             console.log("yes");
@@ -130,10 +138,16 @@ app.post('/upload', function (req, res) {
 
         console.log(path);
         console.log(p2);
+        console.log(ext);
+        var resize;
         //resizing pic synchronously
-        sharp(path).sequentialRead(true)
-            .resize(150).png()
-            .toBuffer()
+        if (ext !== "png") {
+            resize = sharp(path).sequentialRead(true).resize(150).png();
+        }
+        else {
+            resize = sharp(path).sequentialRead(true).resize(150);
+        }
+        resize.toBuffer()
             .then(function (data) {
                 fs.writeFileSync(p2, data);
                 fs.unlink(path, function (err) {//asynchronously deleting input file
@@ -150,6 +164,13 @@ app.post('/upload', function (req, res) {
 
     });
 });
+//supportive function
+function merge(a, b) {
+    b.username = a.username;
+    b._id = a._id;
+    b.roleoptions = a.roleoptions;
+    return b;
+}
 //for uploading reg data and redirecting to home
 app.post('/cform', function (req, res) {
     if (req.session.req) {
@@ -161,17 +182,19 @@ app.post('/cform', function (req, res) {
                 var newvalues = { $set: req.body };
                 dbo.collection("users").updateOne(myvar, newvalues, function (err, res) {
                     if (err) throw err;
+                    myvar = merge(myvar, req.body);
                     db.close();
                 });
-                myvar = req.body;
                 newvalues = { $set: { 'status': true } };
                 dbo.collection("users").updateOne(myvar, newvalues, function (err, res) {
-                    if (err) throw err;
+                    if (err)
+                        throw err;
                     myvar.status = true;
                     db.close();
+                    console.log(myvar);
                 });
+                res.redirect('/home');
             });
-            res.redirect('/home');
         }
         else {
             res.render('cform', { msg: "Please fill all the fields", myvar: myvar, img: img, dp: "none" });
