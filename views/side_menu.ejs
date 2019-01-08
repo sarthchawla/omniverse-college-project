@@ -1,4 +1,4 @@
-<div class="col-sm-2 sidebar" style="padding-right: 0px;padding-left: 0px;">
+<div class="col-sm-2 sidebar text-center text-capitalize" style="padding-right: 0px;padding-left: 0px;">
     <!-- for users and cb home is my communities page -->
     <a href="/home">Home</a>
     <% if(type=="admin"){ %>
@@ -13,6 +13,25 @@
     <a href="/changep">Change Password</a>
     <a href="/logout">Logout</a>
 </div>
+<% if(type=="admin"){ %>
+<script>
+    $(document).ready(function () {
+        console.log("-> " + window.location.pathname);
+        if (window.location.pathname == "/eprofile") {
+            $("[href='/home']").addClass('active');
+        }
+    });
+</script>
+<% }else{ %>
+<script>
+    $(document).ready(function () {
+        console.log("-> " + window.location.pathname);
+        if (window.location.pathname == "/eprofile") {
+            $("[href='/uprofile']").addClass('active');
+        }
+    });
+</script>
+<% } %>
 <script>
     $(document).ready(function () {
         $(".sidebar a").each(function () {

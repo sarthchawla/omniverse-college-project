@@ -1,3 +1,4 @@
+<!-- //1 for 1st page 0 for edit profile -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,92 +8,148 @@
 
     <body>
         <%- include('topbar', {dp: dp}) %>
-        <div class="container" class="content">
-            <div class="col-sm-2">
-            </div>
-            <div class="col-sm-8" style="margin-top:40px">
-                <br>
-                <center>
-                    <h1>Update Details</h1>
-                    <h4>All fields are compulsary </h4>
-                    <% if(msg!=="none"){ %>
-                    <h4 style="color:mediumslateblue">
-                        <%= msg %>
-                    </h4>
-                    <% } %>
-                    <br>
-                    <% if(img!=="none"){ %>
-                    <img class="img-responsive" style="height: 150px;width: 150px;" src=<%=img %> >
-                    <% } %>
-                    <form id="myform" method="post" enctype="multipart/form-data" action="/upload" class="form-inline">
-                        <label>Upload profile pic:</label>
-                        <div class="form-group">
-                            <input type="file" name="file">
+        <div class="container-fluid col-sm-12 content">
+            <% if(op===1){ %>
+            <div class="row">
+                <%- include('side_menu', {type: myvar.roleoptions}) %>
+                <div class="col-sm-10">
+                    <div class="container">
+                        <% } %>
+                        <div class="col-sm-2">
                         </div>
-                        <div class="form-group">
-                            <input type="submit" value="Upload" class="btn btn-success">
-                        </div>
-                    </form>
-                </center>
-                <form action="/cform" method="post">
-                    <fieldset>
-                        <legend>Basic Info:</legend>
-                        <div class="form-group">
-                            <label>Name:</label>
-                            <input type="text" required="" name="name" class="form-control" placeholder="Enter name"><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Date of Birth:</label>
-                            <input type="date" required="" name="dob" class="form-control" placeholder="Enter DOB"><br>
-                        </div>
-                        <div class="form-group">
-                            <label>Gender:</label>
-                            <select data-style="btn-info" name="gender" class="form-control">
-                                <optgroup label="Select gender">
-                                    <option value="Male" selected="selected">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Transgender">Transgender</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend>Contact Info:</legend>
-                        <div class="form-group">
-                            <label>Phone Number:</label>
-                            <input type="text" required="" name="phone" pattern="[0-9]{10}" class="form-control"
-                                maxlength="10" id="phone" value=<%=myvar.phone %> ><br>
-                        </div>
-                        <div class="form-group">
-                            <label>City:</label>
-                            <input type="text" required="" name="city" class="form-control" value=<%=myvar.city %>><br>
-                        </div>
-                    </fieldset>
-                    <fieldset>
-                        <legend>Personal Info:</legend>
-                        <div class="form-group">
-                            <label>Interests :</label>
-                            <textarea type="text" class="form-control" name="interests" required=""></textarea>
-                        </div>
+                        <div class="col-sm-8" style="margin-top:40px">
+                            <br>
+                            <center>
+                                <h1>Update Details</h1>
+                                <h4>All fields are compulsary </h4>
+                                <% if(msg!=="none"){ %>
+                                <h4 style="color:mediumslateblue">
+                                    <%= msg %>
+                                </h4>
+                                <% } %>
+                                <br>
+                                <% if(img!=="none"){ %>
+                                <img class="img-responsive" style="height: 150px;width: 150px;" src=<%=img %> >
+                                <% } %>
+                                <form id="myform" method="post" enctype="multipart/form-data" action="/upload" class="form-inline">
+                                    <label>Upload profile pic:</label>
+                                    <div class="form-group">
+                                        <input type="file" name="file">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="submit" value="Upload" class="btn btn-success">
+                                    </div>
+                                </form>
+                            </center>
+                            <form action="/cform" method="post">
+                                <fieldset>
+                                    <legend>Basic Info:</legend>
+                                    <div class="form-group">
+                                        <label>Name:</label>
+                                        <% if(op===1){ %>
+                                        <input type="text" required="" name="name" class="form-control" value=<%=myvar.name
+                                            %>>
+                                        <% }else{ %>
+                                        <input type="text" required="" name="name" class="form-control" placeholder="Enter name">
+                                        <% } %>
+                                        <br>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Date of Birth:</label>
+                                        <% if(op===1){ %>
+                                        <input type="date" required="" name="dob" class="form-control" value=<%=myvar.dob
+                                            %>><br>
+                                        <% }else{ %>
+                                        <input type="date" required="" name="dob" class="form-control" placeholder="Enter DOB"><br>
+                                        <% } %>
 
-                        <div class="form-group">
-                            <label>Tell us a bit more about your journey:</label>
-                            <textarea type="text" class="form-control" name="journey" required=""></textarea>
-                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Gender:</label>
+                                        <select data-style="btn-info" name="gender" class="form-control">
+                                            <optgroup label="Select gender">
+                                                <% if(op===1&&myvar.gender=="Male"){ %>
+                                                <option value="Male" selected>Male</option>
+                                                <% }else{ %>
+                                                <option value="Male">Male</option>
+                                                <% } %>
 
-                        <div class="form-group">
-                            <label>What are your expectations from the communities?</label>
-                            <textarea type="text" class="form-control" name="expectations" required=""></textarea>
-                        </div>
+                                                <% if(op===1&&myvar.gender=="Female"){ %>
+                                                <option value="Female">Female</option>
+                                                <% }else{ %>
+                                                <option value="Female">Female</option>
+                                                <% } %>
 
-                    </fieldset>
-                    <div class="form-group" align="center">
-                        <input type="submit" value="Update" class="btn btn-success">
-                        <a value="Logout" class="btn btn-danger" href="/logout">Logout</a>
+                                                <% if(op===1&&myvar.gender=="Transgender"){ %>
+                                                <option value="Transgender">Transgender</option>
+                                                <% }else{ %>
+                                                <option value="Transgender">Transgender</option>
+                                                <% } %>
+
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Contact Info:</legend>
+                                    <div class="form-group">
+                                        <label>Phone Number:</label>
+                                        <input type="text" required="" name="phone" pattern="[0-9]{10}" class="form-control"
+                                            maxlength="10" id="phone" value=<%=myvar.phone %> ><br>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>City:</label>
+                                        <input type="text" required="" name="city" class="form-control" value=<%=myvar.city
+                                            %>><br>
+                                    </div>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Personal Info:</legend>
+                                    <div class="form-group">
+                                        <label>Interests :</label>
+                                        <% if(op===1){ %>
+                                        <textarea type="text" class="form-control" name="interests" required=""><%= myvar.interests %></textarea>
+                                        <% }else{ %>
+                                        <textarea type="text" class="form-control" name="interests" required=""></textarea>
+                                        <% } %>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Tell us a bit more about your journey:</label>
+                                        <% if(op===1){ %>
+                                        <textarea type="text" class="form-control" name="journey" required=""><%= myvar.journey %></textarea>
+                                        <% }else{ %>
+                                        <textarea type="text" class="form-control" name="journey" required=""></textarea>
+                                        <% } %>
+
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>What are your expectations from the communities?</label>
+                                        <% if(op===1){ %>
+                                        <textarea type="text" class="form-control" name="expectations" required=""><%= myvar.expectations %></textarea>
+                                        <% }else{ %>
+                                        <textarea type="text" class="form-control" name="expectations" required=""></textarea>
+                                        <% } %>
+                                    </div>
+
+                                </fieldset>
+                                <div class="form-group" align="center">
+                                    <input type="submit" value="Update" class="btn btn-success">
+                                    <% if(op===1){ %>
+                                    <a value="Cancel" class="btn btn-danger" href="/uprofile">Cancel</a>
+                                    <% }else{ %>
+                                    <a value="Logout" class="btn btn-danger" href="/logout">Logout</a>
+                                    <% } %>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-sm-2">
+                            <% if(op===1){ %>
+                        </div>
                     </div>
-                </form>
-            </div>
-            <div class="col-sm-2">
+                </div>
+                <% } %>
             </div>
         </div>
     </body>

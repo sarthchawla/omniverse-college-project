@@ -16,17 +16,19 @@
                         </div>
                         <div class="col-sm-6" style="margin-top:40px">
                             <br>
-                            <h1 align="center">Add User</h1>
+                            <h1 align="center" id="f1">Add User</h1>
+
                             <% if(msg !== "none"){ %>
                             <h4 style="color:mediumslateblue">
                                 <%= msg %>
                             </h4>
                             <% } %>
+                            <h4 id="f"></h4>
                             <form action="/add_user" method="post" class="form-horizontal">
                                 <div class="col-sm-12">
                                     <div class="form-group">
                                         <input type="email" required="" name="username" class="form-control" id="username"
-                                            placeholder="Email"><br>
+                                            placeholder="Email" onblur="myFunction()"><br>
                                     </div>
                                     <div class="form-group">
                                         <input type="tel" required="" name="phone" pattern="[0-9]{10}" class="form-control"
@@ -60,7 +62,34 @@
                 </div>
             </div>
         </div>
+        <script>
+            function myFunction() {
+                console.log(document.getElementById('username').value)
+                var request = new XMLHttpRequest();
+                var message = document.getElementById("f");
+                request.addEventListener('load', function () {
+                    console.log(request);
+                    // console.log(request);
+                    if (request.readyState == 4 && request.status == 200) {
+                        if (request.response == "\"success\"") {
+                            //Username available.
+                            message.style.color = "green";
+                            message.innerHTML = "Username is available";
+                        }
+                        else {
+                            //Username not available.
+                            message.style.color = "red";
+                            message.innerHTML = "Username is NOT available";
+                        }
+                    }
+                });
 
+                request.open('POST', '/check_uid');
+                request.setRequestHeader('Content-Type', 'application/json');
+                request.send(JSON.stringify({ uid: document.getElementById('username').value }));
+
+            }
+        </script>
 
     </body>
 
