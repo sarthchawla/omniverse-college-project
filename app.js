@@ -119,6 +119,7 @@ app.post('/check_uid', isAuthenticated, function (req, res) {
                 console.log(result[0]);
                 res.writeHead(200, { 'Content-type': 'application/json' });
                 var msg = "this email is already registered";
+                req.session.flag = 1;
                 res.write(JSON.stringify({ msg: msg }));
                 res.end();
             }
@@ -307,6 +308,9 @@ function check(obj) {
 //add user form
 app.post('/add_user', isAuthenticated, function (req, res) {
     var myobj = req.body;
+    if (req.session.flag === 1) {
+        res.render('add_user', { msg: "Please enter any other email", dp: req.session.dp });
+    }
     //console.log(myobj);
     if (check(myobj)) {
         myobj.status = false;//fill form to confirm the status or admin can edit it too

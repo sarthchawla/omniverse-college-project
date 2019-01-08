@@ -17,13 +17,11 @@
                         <div class="col-sm-6" style="margin-top:40px">
                             <br>
                             <h1 align="center" id="f1">Add User</h1>
-
-                            <% if(msg !== "none"){ %>
-                            <h4 style="color:mediumslateblue">
+                            <h4 style="color:mediumslateblue" id="f">
+                                <% if(msg !== "none"){ %>
                                 <%= msg %>
+                                <% } %>
                             </h4>
-                            <% } %>
-                            <h4 id="f"></h4>
                             <form action="/add_user" method="post" class="form-horizontal">
                                 <div class="col-sm-12">
                                     <div class="form-group">
