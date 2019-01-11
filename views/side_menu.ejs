@@ -17,7 +17,7 @@
 <script>
     $(document).ready(function () {
         console.log("-> " + window.location.pathname);
-        if (window.location.pathname == "/eprofile") {
+        if (window.location.pathname == "/eprofile" || window.location.pathname == "/uprofile" || window.location.pathname == "/upload") {
             $("[href='/home']").addClass('active');
         }
     });
@@ -26,7 +26,7 @@
 <script>
     $(document).ready(function () {
         console.log("-> " + window.location.pathname);
-        if (window.location.pathname == "/eprofile") {
+        if (window.location.pathname == "/eprofile" || window.location.pathname == "/upload") {
             $("[href='/uprofile']").addClass('active');
         }
     });

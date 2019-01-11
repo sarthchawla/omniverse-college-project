@@ -5,7 +5,20 @@ var app = express();
 var session = require('express-session');
 var bodyparser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
+var MongoDataTable = require('mongo-datatable');
+var db;
 var url = "mongodb://localhost:27017/omniverse";
+MongoClient.connect(url, { useNewUrlParser: true }, function (err, d) {
+    if (err) throw err;
+    db = d;
+    console.log('connected to db');
+});
+// listen for the signal interruption (ctrl-c)
+process.on('SIGINT', () => {
+    db.close();
+    console.log('db says bye');
+    process.exit();
+});
 var multer = require('multer');
 var sharp = require('sharp');//for resizeing pic
 //multer settings
@@ -25,8 +38,8 @@ var upload = multer({ storage: storage }).single('file');//allowing only single 
 app.set('view engine', 'ejs');
 //prevent back button to accesss previous page
 app.use(function (req, res, next) {
-    //so that back button cant be used to go back to login page
-    res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    //so that back button cant be used to go back to login //only on login page
+    // res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
     next();
 });
 //session middleware ,configuring session settings 
@@ -93,6 +106,10 @@ app.get('/home', function (req, res) {
         res.redirect('/');
     }
 });
+//user list page testing datatables
+app.get('/ulist', isAuthenticated, function (req, res) {
+    res.render('ulist', { dp: req.session.dp, myvar: req.session.myvar })
+});
 //user profile page
 app.get('/uprofile', isAuthenticated, function (req, res) {
     res.render('uprofile', { myvar: req.session.myvar, dp: req.session.dp });
@@ -110,24 +127,22 @@ app.get('/add_user', isAuthenticated, function (req, res) {
 app.post('/check_uid', isAuthenticated, function (req, res) {
     console.log('check user request received')
     console.log(req.body.uid);
-    MongoClient.connect(url, function (err, db) {
+
+    var dbo = db.db("omniverse");
+    dbo.collection("users").find({ username: req.body.uid }).toArray(function (err, result) {
         if (err) throw err;
-        var dbo = db.db("omniverse");
-        dbo.collection("users").find({ username: req.body.uid }).toArray(function (err, result) {
-            if (err) throw err;
-            else if (result.length > 0) {
-                console.log(result[0]);
-                res.writeHead(200, { 'Content-type': 'application/json' });
-                var msg = "this email is already registered";
-                req.session.flag = 1;
-                res.write(JSON.stringify({ msg: msg }));
-                res.end();
-            }
-            else {
-                res.json('success');
-            }
-            db.close();
-        });
+        else if (result.length > 0) {
+            console.log(result[0]);
+            res.writeHead(200, { 'Content-type': 'application/json' });
+            var msg = "this email is already registered";
+            req.session.flag = 1;
+            res.write(JSON.stringify({ msg: msg }));
+            res.end();
+        }
+        else {
+            req.session.flag = 0;
+            res.json('success');
+        }
     });
 });
 //logout page
@@ -144,7 +159,10 @@ app.get('/logout', function (req, res) {
 app.get('/changep', isAuthenticated, function (req, res) {
     res.render('change_password', { msg: "none", type: req.session.myvar.roleoptions, dp: req.session.dp });
 });
-//for all post requests
+//all post requests
+app.get('/udata', function (req, res, next) {
+
+})
 function check1(obj) {
     if (obj.name.length > 0 && obj.dob.length > 0 && obj.gender.length > 0 && obj.phone.length > 0 && obj.city.length > 0 && obj.interests.length > 0 && obj.journey.length > 0 && obj.expectations.length > 0)
         return true;
@@ -170,24 +188,23 @@ app.post('/upload', function (req, res) {
                 //console.log(p2 + ' was deleted');
             })
         }
-
         //console.log(path);
         //console.log(p2);
         //console.log(req.session.ext);
         var resize;
         //resizing pic synchronously
-        if (req.session.ext !== "png") {
-            resize = sharp(path).sequentialRead(true).resize(150).png();
-        }
-        else {
-            resize = sharp(path).sequentialRead(true).resize(150);
-        }
+        // if (req.session.ext !== "png") {
+        //     resize = sharp(path).sequentialRead(true).resize(150);
+        // }
+        // else {
+        resize = sharp(path).sequentialRead(true).resize(150);
+        // }
         resize.toBuffer()
             .then(function (data) {
                 fs.writeFileSync(p2, data);
-                fs.unlink(path, function (err) {//asynchronously deleting input file
+                fs.unlink(path, function (err) {
                     if (err) throw err;
-                    //console.log(path + ' was deleted');
+                    //console.log(p2 + ' was deleted');
                 })
                 //console.log("image upload done");
                 res.render('cform', { msg: "none", myvar: req.session.myvar, img: req.session.img, dp: req.session.dp, op: req.session.op });
@@ -212,29 +229,24 @@ app.post('/cform', function (req, res) {
     if (req.session.req) {
         //console.log("image is " + req.session.ext)
         if (check1(req.body) && req.session.ext !== "none") {
-            MongoClient.connect(url, function (err, db) {
+            var dbo = db.db("omniverse");
+            var newvalues = { $set: req.body };
+            console.log(req.body);
+            dbo.collection("users").updateOne({ username: req.session.myvar.username }, newvalues, function (err, res) {
                 if (err) throw err;
-                var dbo = db.db("omniverse");
-                var newvalues = { $set: req.body };
-                console.log(req.body);
-                dbo.collection("users").updateOne({ username: req.session.myvar.username }, newvalues, function (err, res) {
-                    if (err) throw err;
-                    console.log('status updated-1');
-                    db.close();
-                });
-                newvalues = { $set: { 'status': true } };
-                dbo.collection("users").updateOne({ username: req.session.myvar.username }, newvalues, function (err, res) {
-                    if (err)
-                        throw err;
-                    console.log('status updated-2');
-                    db.close();
-                });
-                req.session.myvar = merge(req.session.myvar, req.body);
-                req.session.myvar.status = true;
-                console.log("cform submission->")
-                console.log(req.session.myvar);
-                res.redirect('/home');
+                console.log('status updated-1');
             });
+            newvalues = { $set: { 'status': true } };
+            dbo.collection("users").updateOne({ username: req.session.myvar.username }, newvalues, function (err, res) {
+                if (err)
+                    throw err;
+                console.log('status updated-2');
+            });
+            req.session.myvar = merge(req.session.myvar, req.body);
+            req.session.myvar.status = true;
+            console.log("cform submission->")
+            console.log(req.session.myvar);
+            res.redirect('/home');
         }
         else {
             res.render('cform', { msg: "Please fill all the fields", myvar: req.session.myvar, img: req.session.ext, dp: "none", op: req.session.op });
@@ -249,14 +261,10 @@ app.post('/change_password', isAuthenticated, function (req, res) {
     if (req.body.old_password.length == 0 || req.body.new_password.length == 0)
         res.render('change_password', { msg: "Please fill all the fields", type: req.session.myvar.roleoptions, dp: req.session.dp })
     if (req.session.myvar.password === req.body.old_password) {
-        MongoClient.connect(url, function (err, db) {
+        var dbo = db.db("omniverse");
+        var newvalues = { $set: { password: req.body.new_password } };
+        dbo.collection("users").updateOne(req.session.myvar, newvalues, function (err, res) {
             if (err) throw err;
-            var dbo = db.db("omniverse");
-            var newvalues = { $set: { password: req.body.new_password } };
-            dbo.collection("users").updateOne(req.session.myvar, newvalues, function (err, res) {
-                if (err) throw err;
-                db.close();
-            });
         });
         res.render('change_password', { msg: "Password has been successfully changed", type: req.session.myvar.roleoptions, dp: req.session.dp })
     }
@@ -268,34 +276,31 @@ app.post('/change_password', isAuthenticated, function (req, res) {
 app.post('/login_info', function (req, res) {
     //console.log('login credentials are = ');//checking whats send
     //console.log(req.body);
-    MongoClient.connect(url, function (err, db) {
+
+    var dbo = db.db("omniverse");
+    dbo.collection("users").find({ username: req.body.email }).toArray(function (err, result) {
         if (err) throw err;
-        var dbo = db.db("omniverse");
-        dbo.collection("users").find({ username: req.body.email }).toArray(function (err, result) {
-            if (err) throw err;
-            else if (result.length > 0) {
-                if (result[0].password == req.body.password) {
-                    current_session = req.session;
-                    current_session.type = result[0].roleoptions;
-                    req.session.myvar = result[0];
-                    if (req.body.remember) { } else {
-                        req.session.cookie.maxAge = 1000 * 60 * 5; //5 mins...milisec to sec to minutes
-                    }
-                    res.redirect('/');
+        else if (result.length > 0) {
+            if (result[0].password == req.body.password) {
+                current_session = req.session;
+                current_session.type = result[0].roleoptions;
+                req.session.myvar = result[0];
+                if (req.body.remember) { } else {
+                    req.session.cookie.maxAge = 1000 * 60 * 5; //5 mins...milisec to sec to minutes
                 }
-                else {
-                    res.render('index', {
-                        msg: "Email and password does not match", dp: req.session.dp
-                    });
-                }
+                res.redirect('/');
             }
             else {
                 res.render('index', {
-                    msg: "Email does not exists", dp: req.session.dp
+                    msg: "Email and password does not match", dp: req.session.dp
                 });
             }
-            db.close();
-        });
+        }
+        else {
+            res.render('index', {
+                msg: "Email does not exists", dp: req.session.dp
+            });
+        }
     });
 });
 //to check weather all fields are filled or not as at client side required can be edited out too
@@ -315,14 +320,10 @@ app.post('/add_user', isAuthenticated, function (req, res) {
     if (check(myobj)) {
         myobj.status = false;//fill form to confirm the status or admin can edit it too
         myobj.active = true;//all records will be kept even after deactivation can be done by admin too
-        MongoClient.connect(url, function (err, db) {
+        var dbo = db.db("omniverse");
+        dbo.collection("users").insertOne(myobj, function (err, res) {
             if (err) throw err;
-            var dbo = db.db("omniverse");
-            dbo.collection("users").insertOne(myobj, function (err, res) {
-                if (err) throw err;
-                //console.log("1 document inserted");
-                db.close();
-            });
+            //console.log("1 document inserted");
         });
         res.render('add_user', { msg: "User added", dp: req.session.dp });
     }
