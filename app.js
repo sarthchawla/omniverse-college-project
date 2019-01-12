@@ -37,11 +37,11 @@ var upload = multer({ storage: storage }).single('file');//allowing only single 
 //set view engine to ejs
 app.set('view engine', 'ejs');
 //prevent back button to accesss previous page
-app.use(function (req, res, next) {
-    //so that back button cant be used to go back to login //only on login page
-    // res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
-    next();
-});
+// app.use(function (req, res, next) {
+//     //so that back button cant be used to go back to login //only on login page
+//     res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+//     next();
+// });
 //session middleware ,configuring session settings 
 app.use(session({
     saveUninitialized: false,
