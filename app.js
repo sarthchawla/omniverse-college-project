@@ -5,7 +5,7 @@ var app = express();
 var session = require('express-session');
 var bodyparser = require('body-parser');
 var MongoClient = require('mongodb').MongoClient;
-var MongoDataTable = require('mongo-datatable');
+// var MongoDataTable = require('mongo-datatable');
 var db;
 var url = "mongodb://localhost:27017/omniverse";
 MongoClient.connect(url, { useNewUrlParser: true }, function (err, d) {
