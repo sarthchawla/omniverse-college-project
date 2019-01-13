@@ -4,6 +4,7 @@ var express = require('express');
 var app = express();
 var session = require('express-session');
 var bodyparser = require('body-parser');
+var MongoDataTable = require('mongo-datatable');
 var MongoClient = require('mongodb').MongoClient;
 // var MongoDataTable = require('mongo-datatable');
 var db;
@@ -160,8 +161,29 @@ app.get('/changep', isAuthenticated, function (req, res) {
     res.render('change_password', { msg: "none", type: req.session.myvar.roleoptions, dp: req.session.dp });
 });
 //all post requests
-app.get('/udata', function (req, res, next) {
+app.post('/udata', function (req, res, next) {
+    console.log(req.body);
+    var options = req.body;
+    options.showAlertOnError = true;
 
+    /**
+     * Using customQuery for specific needs such as
+     * filtering data which has `role` property set to user
+     */
+    // options.customQuery = {
+    //     role: 'user'
+    // };
+
+    // uncomment the line below to enable case insensitive search
+    // options.caseInsensitiveSearch = true;
+    var dbo = db.db("omniverse");
+    new MongoDataTable(dbo).get('users', options, function (err, result) {
+        if (err) {
+            // handle the error
+        }
+        console.log(result);
+        res.json(result);
+    });
 })
 function check1(obj) {
     if (obj.name.length > 0 && obj.dob.length > 0 && obj.gender.length > 0 && obj.phone.length > 0 && obj.city.length > 0 && obj.interests.length > 0 && obj.journey.length > 0 && obj.expectations.length > 0)
@@ -246,14 +268,19 @@ app.post('/cform', function (req, res) {
             req.session.myvar.status = true;
             console.log("cform submission->")
             console.log(req.session.myvar);
-            res.redirect('/home');
+            if (req.session.op == 1) {
+                res.redirect('/uprofile');
+            }
+            else
+                res.redirect('/home');
         }
         else {
             res.render('cform', { msg: "Please fill all the fields", myvar: req.session.myvar, img: req.session.ext, dp: "none", op: req.session.op });
         }
     }
-    else
+    else {
         res.redirect('/');
+    }
 
 });
 //to change password

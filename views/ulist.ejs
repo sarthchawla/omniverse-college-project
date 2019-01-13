@@ -9,15 +9,18 @@
         <!-- jQuery library -->
         <script src="jquery.min.js"></script>
 
+        <!-- datatables files -->
+        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
         <!-- Latest compiled JavaScript -->
         <script src="bootstrap.min.js"></script>
         <script src="script.js"></script>
-        <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- <link href="login_files/signin.css" rel="stylesheet"> -->
-        <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css" rel="stylesheet">
         <style>
             .content {
                 background-color: #eeeeee;
@@ -73,21 +76,11 @@
 
     <body>
         <%- include('topbar', {dp: dp}) %>
-        <div class="container-fluid text-center" style="padding:0px">
+        <div class="container-fluid" style="padding:0px">
             <div class="row1 content">
                 <%- include('side_menu', {type: myvar.roleoptions}) %>
                 <div class="col-sm-10 container content" style="margin-top:40px;">
                     <table id="example" class="table table-striped table-bordered" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Phone</th>
-                                <th>City</th>
-                                <th>Status</th>
-                                <th>Role</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
                     </table>
                 </div>
             </div>
@@ -96,7 +89,20 @@
             $(document).ready(function () {
                 $('#example').DataTable({
                     "serverSide": true,
-                    "ajax": "/udata",
+                    "ajax": {
+                        "url": "/udata",
+                        "type": "POST"
+                    },
+                    'columns': [
+                        { 'title': 'User Id', 'data': '_id', 'orderable': false, 'searchable': false, 'sClass': 'tableId' },
+                        { 'title': 'Usename/Email', 'data': 'username', 'orderable': true, 'searchable': true, 'sClass': 'tableUname' },
+                        { 'title': 'Phone', 'data': 'phone', 'orderable': false, 'searchable': false, 'sClass': 'tablePhone' },
+                        { 'title': 'City', 'data': 'city', 'orderable': true, 'searchable': true, 'sClass': 'tableCity' },
+                        { 'title': 'Status', 'data': 'status', 'orderable': true, 'searchable': false, 'sClass': 'tableStatus' },
+                        { 'title': 'Role', 'data': 'roleoptions', 'orderable': true, 'searchable': false, 'sClass': 'tableRole' },
+                        { 'title': 'Active', 'data': 'active', 'orderable': false, 'searchable': false, 'sClass': 'tableActivated' },
+                        { 'title': "Actions", 'data': null, 'orderable': true, 'searchable': false, 'sClass': 'tableAction' },
+                    ],
                 });
             });
         </script>
