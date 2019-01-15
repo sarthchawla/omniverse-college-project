@@ -68,10 +68,10 @@ function isAuthenticated(req, res, next) {
 }
 //all get requests
 //first page of website is login
-var current_session;
+// var current_session;
 app.get('/', function (req, res) {
-    current_session = req.session;
-    if (current_session.type) {
+    // current_session = req.session;
+    if (req.session.type) {
         req.session.dp = "/images/new-" + JSON.stringify(req.session.myvar._id) + ".png";
         res.redirect('/home');//to get homepage
     }
@@ -309,8 +309,8 @@ app.post('/login_info', function (req, res) {
         if (err) throw err;
         else if (result.length > 0) {
             if (result[0].password == req.body.password) {
-                current_session = req.session;
-                current_session.type = result[0].roleoptions;
+                // current_session = req.session;
+                req.session.type = result[0].roleoptions;
                 req.session.myvar = result[0];
                 if (req.body.remember) { } else {
                     req.session.cookie.maxAge = 1000 * 60 * 5; //5 mins...milisec to sec to minutes
