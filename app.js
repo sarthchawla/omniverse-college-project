@@ -248,7 +248,7 @@ function merge(a, b) {
 }
 //for uploading reg data and redirecting to home
 app.post('/cform', function (req, res) {
-    if (req.session.req) {
+    if (req.session.type) {
         //console.log("image is " + req.session.ext)
         if (check1(req.body) && req.session.ext !== "none") {
             var dbo = db.db("omniverse");

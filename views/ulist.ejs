@@ -94,13 +94,35 @@
                         "type": "POST"
                     },
                     'columns': [
-                        { 'title': 'Usename/Email', 'data': 'username', 'orderable': true, 'searchable': true, 'sClass': 'tableUname' },
-                        { 'title': 'Phone', 'data': 'phone', 'orderable': false, 'searchable': false, 'sClass': 'tablePhone' },
-                        { 'title': 'City', 'data': 'city', 'orderable': true, 'searchable': true, 'sClass': 'tableCity' },
-                        { 'title': 'Status', 'data': 'status', 'orderable': true, 'searchable': false, 'sClass': 'tableStatus' },
-                        { 'title': 'Role', 'data': 'roleoptions', 'orderable': true, 'searchable': false, 'sClass': 'tableRole' },
-                        { 'title': 'Active', 'data': 'active', 'orderable': false, 'searchable': false, 'sClass': 'tableActivated' },
-                        { 'title': "Actions", 'data': null, 'orderable': true, 'searchable': false, 'sClass': 'tableAction' },
+                        { 'title': 'Usename/Email', 'data': 'username', 'orderable': true, 'searchable': true },
+                        { 'title': 'Phone', 'data': 'phone', 'orderable': true, 'searchable': true },
+                        { 'title': 'City', 'data': 'city', 'orderable': true, 'searchable': true },
+                        {
+                            'title': 'Status', 'data': 'status', 'orderable': true, 'searchable': false, 'sClass': 'tableStatus', 'render': function (data) {
+                                if (data == true) {
+                                    return "confirmed";
+                                }
+                                else
+                                    return "pending";
+                            }
+                        },
+                        { 'title': 'Role', 'data': 'roleoptions', 'orderable': true, 'searchable': false },
+
+
+                        {
+                            'title': "Actions", 'data': 'active', 'orderable': false, 'searchable': false,
+                            'render': function (data) {
+                                var str = '<center><button class="btn-warning">mail</button> <button class="btn-info">edit</button> ';
+                                if (data == true) {
+                                    str += '<button class="btn-success">active</button>'
+                                }
+                                else {
+                                    str += '<button class="btn-danger">inactive</button>'
+                                }
+                                str += '</center>'
+                                return str;
+                            }
+                        },
                     ],
                 });
             });
