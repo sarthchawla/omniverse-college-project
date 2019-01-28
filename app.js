@@ -6,12 +6,11 @@ var session = require('express-session');
 var bodyparser = require('body-parser');
 var MongoDataTable = require('mongo-datatable');
 var MongoClient = require('mongodb').MongoClient;
-// var MongoDataTable = require('mongo-datatable');
-var db;
-var url = "mongodb://localhost:27017/omniverse";
+var dbo;
+var url = "mongodb://localhost:27017/";
 MongoClient.connect(url, { useNewUrlParser: true }, function (err, d) {
     if (err) throw err;
-    db = d;
+    dbo = d.db('omniverse');
     console.log('connected to db');
 });
 // listen for the signal interruption (ctrl-c)
@@ -129,7 +128,7 @@ app.post('/check_uid', isAuthenticated, function (req, res) {
     console.log('check user request received')
     console.log(req.body.uid);
 
-    var dbo = db.db("omniverse");
+    // var dbo = db.db("omniverse");
     dbo.collection("users").find({ username: req.body.uid }).toArray(function (err, result) {
         if (err) throw err;
         else if (result.length > 0) {
@@ -162,7 +161,7 @@ app.get('/changep', isAuthenticated, function (req, res) {
 });
 //all post requests
 app.post('/udata', function (req, res, next) {
-    console.log(req.body);
+    // console.log(req.body);
     var options = req.body;
     options.showAlertOnError = true;
 
@@ -175,16 +174,62 @@ app.post('/udata', function (req, res, next) {
     // };
 
     // uncomment the line below to enable case insensitive search
-    // options.caseInsensitiveSearch = true;
-    var dbo = db.db("omniverse");
+    options.caseInsensitiveSearch = true;
+    // var dbo = db.db("omniverse");
     new MongoDataTable(dbo).get('users', options, function (err, result) {
         if (err) {
             // handle the error
         }
-        console.log(result);
+        // console.log(result);
         res.json(result);
     });
 })
+// edit mail and toggle active for user-datatable -----------------------------------------------------------------------------------------------------------------------
+app.post('/mail', isAuthenticated, (req, res) => {
+    console.log(req.body);
+    // res.render('mail', { dp: req.session.dp, to: req.body.username });
+})
+app.post('/edit', isAuthenticated, (req, res) => {
+    console.log(req.body.username);
+    req.session.edit = req.body.username;
+    res.render('edit_ulist', { msg: "none", dp: req.session.dp, data: req.body });
+
+})
+app.post('/edit_user', (req, res) => {
+    console.log(req.body);
+    var obj = req.body;
+    if (obj.username.length > 0 && obj.phone.length > 0 && obj.city.length > 0) {
+        if (req.body.status == "true")
+            req.body.status = true;
+        if (req.body.status == "false")
+            req.body.status = false;
+        console.log(req.session.edit);
+        var newvalues = { $set: req.body };
+        dbo.collection("users").updateOne({ username: req.session.edit }, newvalues, function (err, result) {
+            if (err) throw err;
+            // console.log(result);
+            res.redirect('/ulist');
+        });
+    }
+    else {
+        res.render('edit_ulist', { msg: "Please fill all the fields", dp: req.session.dp, data: req.body });
+    }
+})
+app.post('/toggle', isAuthenticated, (req, res) => {
+    console.log(req.body);
+    var newvalues;
+    if (req.body.active == "true") {
+        newvalues = { $set: { active: false } }
+    }
+    else {
+        newvalues = { $set: { active: true } }
+    }
+    dbo.collection("users").updateOne({ username: req.body.username }, newvalues), function (err, result) {
+        if (err) throw err;
+        // res.json({ success: "Updated Successfully", status: 200 });
+    };
+})
+// ---------------------------------------------------------------------------------------------------------------------------
 function check1(obj) {
     if (obj.name.length > 0 && obj.dob.length > 0 && obj.gender.length > 0 && obj.phone.length > 0 && obj.city.length > 0 && obj.interests.length > 0 && obj.journey.length > 0 && obj.expectations.length > 0)
         return true;
@@ -251,7 +296,7 @@ app.post('/cform', function (req, res) {
     if (req.session.type) {
         //console.log("image is " + req.session.ext)
         if (check1(req.body) && req.session.ext !== "none") {
-            var dbo = db.db("omniverse");
+            // var dbo = db.db("omniverse");
             var newvalues = { $set: req.body };
             console.log(req.body);
             dbo.collection("users").updateOne({ username: req.session.myvar.username }, newvalues, function (err, res) {
@@ -288,12 +333,13 @@ app.post('/change_password', isAuthenticated, function (req, res) {
     if (req.body.old_password.length == 0 || req.body.new_password.length == 0)
         res.render('change_password', { msg: "Please fill all the fields", type: req.session.myvar.roleoptions, dp: req.session.dp })
     if (req.session.myvar.password === req.body.old_password) {
-        var dbo = db.db("omniverse");
+        // var dbo = db.db("omniverse");
         var newvalues = { $set: { password: req.body.new_password } };
         dbo.collection("users").updateOne(req.session.myvar, newvalues, function (err, res) {
             if (err) throw err;
+
+            res.render('change_password', { msg: "Password has been successfully changed", type: req.session.myvar.roleoptions, dp: req.session.dp })
         });
-        res.render('change_password', { msg: "Password has been successfully changed", type: req.session.myvar.roleoptions, dp: req.session.dp })
     }
     else {
         res.render('change_password', { msg: "Old password doesn't match with account password", type: req.session.myvar.roleoptions, dp: req.session.dp });
@@ -304,7 +350,7 @@ app.post('/login_info', function (req, res) {
     //console.log('login credentials are = ');//checking whats send
     //console.log(req.body);
 
-    var dbo = db.db("omniverse");
+    // var dbo = db.db("omniverse");
     dbo.collection("users").find({ username: req.body.email }).toArray(function (err, result) {
         if (err) throw err;
         else if (result.length > 0) {
@@ -312,6 +358,8 @@ app.post('/login_info', function (req, res) {
                 // current_session = req.session;
                 req.session.type = result[0].roleoptions;
                 req.session.myvar = result[0];
+                req.session.myvar.password = null;
+                console.log(req.session.myvar)
                 if (req.body.remember) { } else {
                     req.session.cookie.maxAge = 1000 * 60 * 5; //5 mins...milisec to sec to minutes
                 }
@@ -347,7 +395,7 @@ app.post('/add_user', isAuthenticated, function (req, res) {
     if (check(myobj)) {
         myobj.status = false;//fill form to confirm the status or admin can edit it too
         myobj.active = true;//all records will be kept even after deactivation can be done by admin too
-        var dbo = db.db("omniverse");
+        // var dbo = db.db("omniverse");
         dbo.collection("users").insertOne(myobj, function (err, res) {
             if (err) throw err;
             //console.log("1 document inserted");

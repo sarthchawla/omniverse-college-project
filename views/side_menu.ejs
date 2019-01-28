@@ -20,6 +20,9 @@
         if (window.location.pathname == "/eprofile" || window.location.pathname == "/uprofile" || window.location.pathname == "/upload") {
             $("[href='/home']").addClass('active');
         }
+        if (window.location.pathname == "/edit_user") {
+            $("[href='/ulist']").addClass('active');
+        }
     });
 </script>
 <% }else{ %>
